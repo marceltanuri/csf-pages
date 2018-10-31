@@ -4,7 +4,7 @@
     <ul>
         <li><a href="/group/logada/fatura-do-cartao"><img alt="Fatura" lt="Fatura" src="/documents/7846272/22658274/Bitmap.png/e8d6cab1-812e-9c10-cb5b-54acfc877076?t=1540842578534" style="margin-top:26px;" /> </a><a href="/group/logada/fatura-do-cartao" title="">Fatura<br />
         do cartão </a></li>
-        <li><a href="javascript:void(0);" onclick="openForm();"><img alt="Chat" src="/documents/7846272/22658274/Group.png/dc48f779-21ee-3da3-18d2-1dbcf3000c50?t=1540842579316" style="margin-top:30px; width:50px;" /> </a><a href="javascript:void(0);" onclick="openForm();" title="">Chat </a></li>
+        <li><a href="javascript:void(0);" onclick="openForm();"><img alt="Chat" src="/documents/7846272/22658274/Group.png/dc48f779-21ee-3da3-18d2-1dbcf3000c50?t=1540842579316" style="margin-top:30px; width:50px;" /> </a><a href="javascript:void(0);" onclick="openForm();" title=""><span id="chatLabel">Chat</span> </a></li>
         <li><a href="/group/logada/dados-cadastrais"><img alt="CartaoEngrenagem" src="/documents/7846272/22658274/Bitmap_2.png/2258b1cf-abc1-49bb-1acc-7c2adb7f6e91?t=1540842579190" style="margin-top:26px;" /> </a><a href="/group/logada/dados-cadastrais" title="">Alteração<br />
         cadastral </a></li>
         <li><a href="/group/logada/bloqueio"><img alt="CartaoCadeado" src="/documents/7846272/22658274/icon_3.png/20882160-9d5d-5d8b-dfca-a02052e5d265?t=1540842579452" style="margin-top:26px;" /> </a><a href="/group/logada/bloqueio" title="">Bloqueio<br />
@@ -122,4 +122,50 @@
           text-align: center;
      }
     </style>
+
+<script
+src="https://code.jquery.com/jquery-3.3.1.js"
+integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+crossorigin="anonymous"></script>
+
+<script>
+ var getSaoPauloCurrentTime = (resolve, reject) =>{
+$.ajax({ 
+   type: "GET",
+   dataType: "jsonp",
+   url: "http://jsonpwrapper.com/?urls%5B%5D=http%3A%2F%2Fworldtimeapi.org%2Fapi%2Ftimezone%2FAmerica%2FSao_Paulo&callback=?",
+   success: function(data){        
+     var worldTimeApiObj = JSON.parse(data[0].body);
+    //  var time = datetime.substring(datetime.indexOf("T")+1,datetime.indexOf("."));
+    //  resolve(time.replace(":","").replace(":",""));
+    resolve(worldTimeApiObj);
+   }, error: function(){resolve("");}
+});
+};
+
+
+
+function getChatAvailability(callback){
+  new Promise(getSaoPauloCurrentTime).then(function(value) {
+    var time = value.datetime.substring(value.datetime.indexOf("T")+1,value.datetime.indexOf(".")).replace(":","").replace(":","");
+    var day_of_week = value.day_of_week;
+    console.log(time);
+    var availability = ""
+    if(time>=80000 && time < 210000 && day_of_week > 0){
+        availability = "online";
+      }
+      else{
+        availability = "offline";
+    }
+    callback(availability);
+  });
+}
+
+function setChatLabelAvailability(){
+    getChatAvailability(function(availability){$("#chatLabel").html("Chat (" + availability + ")")});
+}
+
+setChatLabelAvailability();
+setInterval(setChatLabelAvailability, 60000);
+</script>
     
