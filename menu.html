@@ -123,49 +123,44 @@
      }
     </style>
 
-<script
-src="https://code.jquery.com/jquery-3.3.1.js"
-integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
-crossorigin="anonymous"></script>
-
 <script>
- var getSaoPauloCurrentTime = (resolve, reject) =>{
-$.ajax({ 
-   type: "GET",
-   dataType: "jsonp",
-   url: "http://jsonpwrapper.com/?urls%5B%5D=http%3A%2F%2Fworldtimeapi.org%2Fapi%2Ftimezone%2FAmerica%2FSao_Paulo&callback=?",
-   success: function(data){        
-     var worldTimeApiObj = JSON.parse(data[0].body);
-    //  var time = datetime.substring(datetime.indexOf("T")+1,datetime.indexOf("."));
-    //  resolve(time.replace(":","").replace(":",""));
-    resolve(worldTimeApiObj);
-   }, error: function(){resolve("");}
-});
-};
+    var getSaoPauloCurrentTime = (resolve, reject) =>{
+        $.ajax({ 
+            type: "GET",
+            dataType: "jsonp",
+            timeout: 8000,
+            url: "http://jsonpwrapper.com/?urls%5B%5D=http%3A%2F%2Fworldtimeapi.org%2Fapi%2Ftimezone%2FAmerica%2FSao_Paulo&callback=?",
+            success: function(data){        
+                var worldTimeApiObj = JSON.parse(data[0].body);
+                resolve(worldTimeApiObj);
+            }, error: function(){
+                resolve("");
+            }
+        });
+    };
 
-
-
-function getChatAvailability(callback){
-  new Promise(getSaoPauloCurrentTime).then(function(value) {
-    var time = value.datetime.substring(value.datetime.indexOf("T")+1,value.datetime.indexOf(".")).replace(":","").replace(":","");
-    var day_of_week = value.day_of_week;
-    console.log(time);
-    var availability = ""
-    if(time>=80000 && time < 210000 && day_of_week > 0){
-        availability = "online";
-      }
-      else{
-        availability = "offline";
+    function getChatAvailability(callback){
+    new Promise(getSaoPauloCurrentTime).then(function(value) {
+        if (value == ""){
+            return;
+        }
+        var time = value.datetime.substring(value.datetime.indexOf("T")+1,value.datetime.indexOf(".")).replace(":","").replace(":","");
+        var day_of_week = value.day_of_week;    
+        var availability = ""
+        if(time>=80000 && time < 210000 && day_of_week > 0){
+            availability = "online";
+        }
+        else{
+            availability = "offline";
+        }
+        callback(availability);
+    });
     }
-    callback(availability);
-  });
-}
 
-function setChatLabelAvailability(){
-    getChatAvailability(function(availability){$("#chatLabel").html("Chat (" + availability + ")")});
-}
+    function setChatLabelAvailability(){
+        getChatAvailability(function(availability){$("#chatLabel").html("Chat (" + availability + ")")});
+    }
 
-setChatLabelAvailability();
-setInterval(setChatLabelAvailability, 60000);
+    setChatLabelAvailability();
+    setInterval(setChatLabelAvailability, 60000);
 </script>
-    
